@@ -1,0 +1,5 @@
+tweet_urls: these are the urls that show up in the tweet (available in the json response from twitter).  ---------------- tweet.entities.urls[1]['url'] tweet.urls[1]['expanded_url']
+tweet_hashtags: these are the hashtags that show up in the tweet ---------------- tweet.entities.hashtags[0].text
+created_at: when the tweet was created ---------------- tweet.created_at
+text: text of the tweet ---------------- tweet.text
+lang: the twitter detected language setting, will either be en, ru, or de. ----------------  tweet.lang
