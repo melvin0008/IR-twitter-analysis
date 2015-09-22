@@ -9,7 +9,7 @@ def gettweets():
 	auth.set_access_token(config.ACCESS_TOKEN, config.ACCESS_TOKEN_SECRET)
 	api = tweepy.API(auth)
 
-	querys = ['Messi','sogaz','Bundesliga','BVB','SNF','premierleague']
+	querys = ['golf','rugby','cricket','imVkohli','Ligue1']
 	langs=["en","ru","de"]
 	max_tweets = 200
 	for lang in langs:
@@ -33,7 +33,7 @@ def gettweets():
 				except Exception as e:
 					pass
 				else:
-					with codecs.open("tweets4.json", "a") as stream:
+					with codecs.open("tweets6.json", "a") as stream:
 						data=json.dumps(ret,ensure_ascii=False)
 						stream.write(str(data)+'\n')
 gettweets()
