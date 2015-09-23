@@ -8,3 +8,14 @@
 617 752 938
 
 
+ <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <!--Added by me-->
+  <field name="text_en" type="text_en" indexed="true" stored="true" />
+  <field name="text_ru" type="text_ru" indexed="true" stored="true" />
+  <field name="text_de" type="text_de" indexed="true" stored="true" />
+  <field name="lang" type="string" indexed="true" stored="true" />
+  <field name="created_at" type="date" indexed="true" stored="true" />
+  <field name="tweet_hashtags" type="text_general" indexed="true" stored="true" multiValued="true"/>
+  <field name="tweet_urls" type="text_general" indexed="true" stored="true" />
+  <field name="retweet_count" type="int" indexed="true" stored="true" />
+

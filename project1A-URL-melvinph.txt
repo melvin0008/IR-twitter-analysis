@@ -1,0 +1,2 @@
+http://melvin0008.koding.io:8983/solr/#/irproject
+50170002
