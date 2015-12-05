@@ -6,8 +6,10 @@ import codecs
 from datetime import datetime
 from time import mktime
 from config import CONSUMER_KEY,CONSUMER_SECRET,ACCESS_TOKEN,ACCESS_TOKEN_SECRET
+import urllib
+import requests
 
-from alchemyapi import AlchemyAPI
+
 
 class MyEncoder(json.JSONEncoder):
 
@@ -22,65 +24,31 @@ auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
 api = tweepy.API(auth)
 
-#querys = ['pray4paris','Le Carillon','Eagles of Death Metal','portesouvertes','théâtre Bataclan']
-querys = ['pray4paris']
+querys = ['pray4paris','Le Carillon','Eagles of Death Metal','portesouvertes','théâtre Bataclan']
 langs=["en"]
-count=10
-pages=2
+count=1000
+pages=500
 filename="tweets1.json"
 
-alchemyapi = AlchemyAPI()
+def getloc(locname):
+    if locname:
+        url="https://maps.googleapis.com/maps/api/geocode/json?address="+locname
+        response = requests.get(url)
+        jsonvalues = response.json()
+        if jsonvalues['status']=="OK":
+            locvalue=jsonvalues['results'][0]['geometry']['location']
+            return [locvalue['lat'],locvalue['lng']]
+    return "Null"
 
 for lang in langs:
     for query in querys:
         for tweets in tweepy.Cursor(api.search, q=query.encode('utf-8'),lang=lang, count=count).pages(pages):
             for tweet in tweets:
                 tweet_data = {}
+                if (not tweet.text.find("RT")) or  (not tweet.entities.get('hashtags')):
+                        continue
                 tweet_data['id'] = str(tweet.id)
                 tweet_data['text'] = tweet.text
-
-		        #Alchemy Stuff:
-                response = json.loads(json.dumps(alchemyapi.entities('text', tweet.text, {'sentiment': 1})))
-                # size=len(response['entities'])
-
-                ent=[]
-                ent_rele=[]
-                ent_type=[]
-                if response['status'] == 'OK':
-                    for entity in response['entities']:
-                        ent.append(entity['text'])
-                        ent_rele.append(entity['relevance'])
-                        ent_type.append(entity['type'])
-                else:
-                    print('Error in entity extraction call: ', response['statusInfo'])
-                response = json.loads(json.dumps(alchemyapi.sentiment("text", tweet.text)))
-                senti=response["docSentiment"]["type"]
-
-
-                response = json.loads(json.dumps(alchemyapi.keywords('text', tweet.text, {'sentiment': 1})))
-                size=len(response['keywords'])
-                keywords=[]
-                if response['status'] == 'OK':
-                    for word in response['keywords']:
-                        keywords.append(word['text'])
-                else:
-                    print('Error in entity extraction call: ', response['statusInfo'])
-
-
-                response=json.loads(json.dumps(alchemyapi.concepts("text",tweet.text)))
-                size=len(response['concepts'])
-                concept=[]
-                if response['status'] == 'OK':
-
-                    for con in response['concepts']:
-                        concept.append(con['text'])
-                else:
-                    print('Error in entity extraction call: ', response['statusInfo'])
-                tweet_data['entities']=ent
-                tweet_data['ent_relevance']=ent_rele
-                tweet_data['ent_type']=ent_type
-                tweet_data['keywords']=keywords
-                tweet_data['concepts']=concept
                 hashtagData  = tweet.entities.get('hashtags')
                 hashtagList = []
                 if not hashtagData:
@@ -102,7 +70,7 @@ for lang in langs:
                 tweet_data['created_at'] = str(temp.strftime('%A, %B %d, %Y %H:%M:%S'))
                 tweet_data['retweet_count'] = tweet.retweet_count
                 tweet_data['timezone'] = tweet.user.time_zone
-                tweet_data['location'] = tweet.user.location
+                tweet_data['location'] = getloc(tweet.user.location)
                 if tweet.place:
                     tweet_data['place'] = tweet.place.country
                 tweet_data["favorite_count"]=tweet.favorite_count
@@ -110,3 +78,4 @@ for lang in langs:
                 with codecs.open(filename,'a', encoding='utf-8') as f:
                     json.dump(tweet_data,f,ensure_ascii=False)
                     f.write('\n')
+
